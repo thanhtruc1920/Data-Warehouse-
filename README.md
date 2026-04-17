@@ -11,8 +11,8 @@ shopee_orders_thailan:
 	| customer_id | VARCHAR(50) |
 	
 	|  year_month |   CHAR(7)   |
-	|  subtotal_amount   | DECIMAL(20, 2) 
-	|
+	|  subtotal_amount   | DECIMAL(20, 2) |
+
 	| shipping_fee_total | DECIMAL(20, 2) |
 	
 	|  commission_total  | DECIMAL(20, 2) |
