@@ -4,7 +4,7 @@ The project includes 4 data files containing order information from Thai Lan cus
 ## Datasets:
 shopee_orders_thailan:
 
-		|  order_id  | INT  | *Primary Key* |
+		|  order_id  | INT  | ***Primary Key*** |
 	
 		| order_date | DATE | 
 	
