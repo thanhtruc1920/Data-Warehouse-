@@ -99,5 +99,13 @@ shopee_customers_thailan:
 		|   city   | NVARCHAR(50) |
 
 ## Tools:
-	• SQL 
+   • SQL 
+   • Draw.io
+
+
+🔹 Built SQL-based ETL pipelines to transform raw data into structured datasets and manage data flow:
+	- Bronze layer (raw data): Extract data (CRM, CSV files, ...)
+	- Silver layer (data cleaning): Transform data (process data )
+	- Gold layer (Star Schema): Load data (create Primary Key, Foreign Key)
+🔹 Designed data warehouse and star schema models using draw.io.
 
