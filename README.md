@@ -107,7 +107,7 @@ shopee_customers_thailan:
 
    		– Bronze layer (raw data): Extract data (CRM, CSV files, ...). 
 	
-		– Silver layer (data cleaning): Transform data (process data ). 
+		– Silver layer (data cleaning): Transform data (process data). 
 	
    		– Gold layer (Star Schema): Load data (create Primary Key, Foreign Key). 
 	
