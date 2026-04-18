@@ -4,11 +4,11 @@ The project includes 4 data files containing order information from Thai Lan cus
 ## Datasets:
 shopee_orders_thailan:
 
-		|  order_id  | INT  | **Primary Key** |
+		|  order_id  | INT  | Primary Key |
 	
 		| order_date | DATE | 
 	
-		| customer_id | VARCHAR(50) | **Foreign Key** |
+		| customer_id | VARCHAR(50) | Foreign Key |
 	
 		|  year_month |   CHAR(7)   |
 	
@@ -26,11 +26,11 @@ shopee_orders_thailan:
   
 shopee_order_items_thailan:
 
-		| order_item_id | INT | **Primary Key** |
+		| order_item_id | INT | Primary Key |
 	
-		|   order_id    | INT | **Foreign Key** |
+		|   order_id    | INT | Foreign Key |
 	
-		| product_id | VARCHAR(50) | **Foreign Key** |
+		| product_id | VARCHAR(50) | Foreign Key |
 	
 		|  quantity  |  SMALLINT   |
 	
@@ -60,7 +60,7 @@ shopee_order_items_thailan:
 
 shopee_products_thailan:
 
-		| product_id | VARCHAR(50) | **Primary Key** |
+		| product_id | VARCHAR(50) | Primary Key |
 	
 		| seller_id  | VARCHAR(50) |
 	
@@ -78,7 +78,7 @@ shopee_products_thailan:
 
 shopee_customers_thailan:
 
-		| customer_id | VARCHAR(50)  | **Primary Key** |
+		| customer_id | VARCHAR(50)  | Primary Key |
 	
 		| first_name  | NVARCHAR(50) |
 	
