@@ -5,7 +5,7 @@ The project includes 4 data files containing order information from Thai Lan cus
 shopee_orders_thailan:
 | Column | Data Type | Description | Key |
 |--------|-----------|-------------|-----|
-|  order_id  | INT  | PK | A unique 6 to 7 digit transaction identifier |
+|  order_id  | INT  | A unique 6 to 7 digit transaction identifier | PK |
 | order_date | DATE | The transaction timestamp |
 | customer_id | VARCHAR(50) | FK -> shopee_customers_thailan.customer_id |
 |  year_month |   CHAR(7)   | Order time |
@@ -17,11 +17,11 @@ shopee_orders_thailan:
 <br>
 
 shopee_order_items_thailan:
-| Column | Data Type | Key |
-|--------|-----------|-----|
+| Column | Data Type | Description | Key |
+|--------|-----------|-------------|-----|
 | order_item_id | INT | Unique identifier for each specific line item in an order | PK |
-|   order_id    | INT | FK -> shopee_orders_thailan.order_id |
-| product_id | VARCHAR(50) | FK -> shopee_products_thailan.product_id |
+|   order_id    | INT | | FK -> shopee_orders_thailan.order_id |
+| product_id | VARCHAR(50) | | FK -> shopee_products_thailan.product_id |
 |  quantity  |  SMALLINT   | The number of units purchased for a specific product within the order |
 | unit_price | DECIMAL(20, 2) | The original retail price of a single unit before any discounts are applied |
 | unit_price_after_discount | DECIMAL(20, 2) | The final price per unit paid by the customer after applying campaign or shop discounts |
@@ -36,8 +36,8 @@ shopee_order_items_thailan:
 <br>
 
 shopee_products_thailan:
-| Column | Data Type | Key |
-|--------|-----------|-----|
+| Column | Data Type | Description | Key |
+|--------|-----------|-------------|-----|
 | product_id | VARCHAR(50) | Unique Primary Key for the catalog | PK |
 |  category  | NVARCHAR(50) | High-level product classification (e.g., Beauty, Fashion, Electronics) |
 | product_name | NVARCHAR(50) | Product name |
@@ -48,8 +48,8 @@ shopee_products_thailan:
 <br>
 
 shopee_customers_thailan:
-| Column | Data Type | Key |
-|--------|-----------|-----|
+| Column | Data Type | Description | Key |
+|--------|-----------|-------------|-----|
 | customer_id | VARCHAR(50)  | Unique identifier for each user | PK |
 | first_name  | NVARCHAR(50) | The given name of the customer |
 |  last_name  | NVARCHAR(50) | The family name of the customer |
