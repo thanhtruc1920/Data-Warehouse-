@@ -14,7 +14,8 @@ shopee_orders_thailan:
 |  commission_total  | DECIMAL(20, 2) |
 | maintenance_total  | DECIMAL(20, 2) |
 | total_amount | DECIMAL(20, 2) |
-  
+<br>
+
 shopee_order_items_thailan:
 | Column | Data Type | Key |
 |--------|-----------|-----|
@@ -34,6 +35,7 @@ shopee_order_items_thailan:
 | item_status | NVARCHAR(50) |
 | is_campaign |   BIT   |
 | product_campaign_id | VARCHAR(50) |
+<br>
 
 shopee_products_thailan:
 | Column | Data Type | Key |
@@ -45,6 +47,7 @@ shopee_products_thailan:
 | commission_rate  | DECIMAL(20, 2) |
 |   weight   |   DECIMAL(20, 2)   |
 | created_at |   DATE   |
+<br>
 
 shopee_customers_thailan:
 | Column | Data Type | Key |
