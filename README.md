@@ -4,7 +4,7 @@ The project includes 4 data files containing order information from Thai Lan cus
 ## Datasets:
 shopee_orders_thailan:
 | Column | Data Type | Key |
-|--------|-----------|-------------|
+|--------|-----------|-----|
 |  order_id  | INT  | Primary Key |
 | order_date | DATE | 
 | customer_id | VARCHAR(50) | Foreign Key |
@@ -14,11 +14,10 @@ shopee_orders_thailan:
 |  commission_total  | DECIMAL(20, 2) |
 | maintenance_total  | DECIMAL(20, 2) |
 | total_amount | DECIMAL(20, 2) |
-| campaign_id  |  VARCHAR(50)   |
   
 shopee_order_items_thailan:
 | Column | Data Type | Key |
-|--------|-----------|-------------|
+|--------|-----------|-----|
 | order_item_id | INT | Primary Key |
 |   order_id    | INT | Foreign Key |
 | product_id | VARCHAR(50) | Foreign Key |
@@ -38,9 +37,8 @@ shopee_order_items_thailan:
 
 shopee_products_thailan:
 | Column | Data Type | Key |
-|--------|-----------|-------------|
+|--------|-----------|-----|
 | product_id | VARCHAR(50) | Primary Key |
-| seller_id  | VARCHAR(50) |
 |  category  | NVARCHAR(50) |
 | product_name | NVARCHAR(50) |
 | maintenance_rate | DECIMAL(20, 3) |
@@ -50,7 +48,7 @@ shopee_products_thailan:
 
 shopee_customers_thailan:
 | Column | Data Type | Key |
-|--------|-----------|-------------|
+|--------|-----------|-----|
 | customer_id | VARCHAR(50)  | Primary Key |
 | first_name  | NVARCHAR(50) |
 |  last_name  | NVARCHAR(50) |
