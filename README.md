@@ -26,7 +26,7 @@ This is an **ELT** pattern: data is extracted from CSV files and loaded as-is in
 |---|---|---|---|---|---|
 | **Bronze** | Raw copy of the source files | Tables | Full load: truncate + bulk insert | None | None (as-is) |
 | **Silver** | Cleaned and standardized data | Tables | Full load, batch processing | Trimming, NULL handling, deduplication, value standardization, data quality checks | Source-aligned tables |
-| **Gold** | Business-ready data | Tables + 1 view | Full load: drop, create, insert | PK/FK constraints, flat sales view | Normalized (ER model) |
+| **Gold** | Business-ready data | Tables | Full load: drop, create, insert | PK/FK constraints | Normalized (ER model) |
 
 ## Data Sources and Lineage
 
@@ -39,8 +39,6 @@ The CRM / ERP labels are a functional grouping of the files: customer and campai
 | `shopee_orders_thailand.csv` | ERP | `bronze.erp_order` | `silver.erp_order` | `gold.orders` |
 | `shopee_order_items_thailand.csv` | ERP | `bronze.erp_order_items` | `silver.erp_order_items` | `gold.order_items` |
 | `shopee_products_thailand.csv` | ERP | `bronze.erp_product` | `silver.erp_product` | `gold.products` |
-
-All five Gold tables feed the flat view `gold.vw_sales_detail` (1 row = 1 order item).
 
 ## Data Model (Gold Layer)
 
@@ -100,13 +98,13 @@ The diagram is simplified and does not show every column.
 
 The Silver script reports problems instead of silently deleting data. Expected result for each rule check is `0`.
 
-- Row count reconciliation between Bronze and Silver (rows removed by deduplication).
-- Duplicate primary keys in every table.
 - Orphan keys: order → customer, order → campaign, order item → order, order item → product.
+- `line_total` does not match `quantity × unit_price_after_discount`.
+- NULL checks: count of NULL values in every column of each Silver table.
+- Key checks: duplicate and missing key values in each table (`order_id`, `order_item_id`, `product_id`, `customer_id`, `campaign_id`).
+- Row count reconciliation between Bronze and Silver (rows removed by deduplication).
 - Negative amounts, quantities and prices.
-- `line_total` consistent with `quantity × unit_price_after_discount`.
 - Delivery end date earlier than start date, registration date in the future, campaign end date earlier than start date.
-- NULL count per column for every Silver table.
 
 The Gold script ends with row count and `SUM(line_total)` comparisons between Silver and Gold.
 
@@ -116,7 +114,6 @@ The Gold script ends with row count and `SUM(line_total)` comparisons between Si
 - **Bronze keeps data as-is**; all cleaning happens in Silver.
 - **Suspicious rows are flagged, not deleted**, to avoid losing real revenue before the business rule is understood.
 - **Explicit column lists** in every `INSERT INTO ... SELECT`, so column order changes cannot silently put values in the wrong column.
-- **Money is read at item level** (`line_total`) in the flat view, so order-level totals are never counted once per item.
 - **Parent tables load before child tables** in Gold, and tables are dropped in the opposite order, to respect foreign keys.
 
 ## Repository Structure
@@ -140,25 +137,27 @@ The Gold script ends with row count and `SUM(line_total)` comparisons between Si
 5. After `GOLD.sql`, confirm that row counts and `SUM(line_total)` match between Silver and Gold.
 
 ## Example Queries
-
 Revenue by product category:
 
 ```sql
-SELECT category,
-       SUM(line_total) AS revenue,
-       SUM(quantity)   AS units_sold
-FROM gold.vw_sales_detail
-GROUP BY category
+SELECT p.category,
+       SUM(i.line_total) AS revenue,
+       SUM(i.quantity)   AS units_sold
+FROM gold.order_items AS i
+JOIN gold.products AS p ON p.product_id = i.product_id
+GROUP BY p.category
 ORDER BY revenue DESC;
 ```
 
 Revenue by province:
 
 ```sql
-SELECT province,
-       SUM(line_total) AS revenue
-FROM gold.vw_sales_detail
-GROUP BY province
+SELECT c.province,
+       SUM(i.line_total) AS revenue
+FROM gold.order_items AS i
+JOIN gold.orders    AS o ON o.order_id    = i.order_id
+JOIN gold.customers AS c ON c.customer_id = o.customer_id
+GROUP BY c.province
 ORDER BY revenue DESC;
 ```
 
