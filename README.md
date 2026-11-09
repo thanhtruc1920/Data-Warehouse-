@@ -16,7 +16,7 @@ flowchart LR
     A["Sources<br/>5 CSV files<br/>(CRM + ERP)"] -->|Extract + Load| B["Bronze<br/>raw tables"]
     B -->|Transform| C["Silver<br/>cleaned tables"]
     C -->|Transform| D["Gold<br/>normalized model + view"]
-    D --> E["Ad-hoc SQL queries"]
+    D -->|Read| ["Ad-hoc SQL queries"]
 ```
 
 This is an **ELT** pattern: data is extracted from CSV files and loaded as-is into Bronze first, then transformed inside SQL Server.
