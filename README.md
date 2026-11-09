@@ -1,80 +1,180 @@
-# Data_Warehouse_Shopee_ThaiLan
-The project includes 4 data files containing order information from Thai Lan customers on the Shopee e-commerce platform.
+# Shopee Thailand Data Warehouse
 
-## Datasets:
-shopee_orders_thailan:
-| Column | Data Type | Description | Key |
-|--------|-----------|-------------|-----|
-|  order_id  | INT  | A unique 6 to 7 digit transaction identifier | PK |
-| order_date | DATE | The transaction timestamp |
-| customer_id | VARCHAR(50) | FK -> shopee_customers_thailan.customer_id |
-|  year_month |   CHAR(7)   | Order time |
-|  subtotal_amount   | DECIMAL(20, 2) | The total Gross Merchandise Value (GMV) per order before overheads |
-| shipping_fee_total | DECIMAL(20, 2) | Aggregated delivery costs |
-|  commission_total  | DECIMAL(20, 2) | Total marketplace fees collected |
-| maintenance_total  | DECIMAL(20, 2) | Operational or service overheads applied to the order |
-| total_amount | DECIMAL(20, 2) | The final settlement value paid by the customer ($Subtotal + Shipping$) |
-<br>
+An end-to-end **ELT pipeline** built in **SQL Server (T-SQL)** following the **Medallion architecture** (Bronze → Silver → Gold). Raw Shopee Thailand sales data (5 CSV files) is loaded, cleaned, standardized and modeled into a normalized relational (ER) model that is ready for analysis.
 
-shopee_order_items_thailan:
-| Column | Data Type | Description | Key |
-|--------|-----------|-------------|-----|
-| order_item_id | INT | Unique identifier for each specific line item in an order | PK |
-|   order_id    | INT | | FK -> shopee_orders_thailan.order_id |
-| product_id | VARCHAR(50) | | FK -> shopee_products_thailan.product_id |
-|  quantity  |  SMALLINT   | The number of units purchased for a specific product within the order |
-| unit_price | DECIMAL(20, 2) | The original retail price of a single unit before any discounts are applied |
-| unit_price_after_discount | DECIMAL(20, 2) | The final price per unit paid by the customer after applying campaign or shop discounts |
-| line_total | DECIMAL(20, 2) | The total value for the specific line item ($Quantity*Unit\_Price\_After\_Discount$) |
-|  discount_percent  | DECIMAL(20, 2) | The percentage of discount applied to the original unit price |
-| commission_amount  | DECIMAL(20, 2) | The fee charged by the platform to the seller for the transaction |
-| maintenance_amount | DECIMAL(20, 2) | Operational or platform fees associated with the product handling |
-| shipping_fee_item  | DECIMAL(20, 2) | The delivery cost allocated to this specific item |
-| estimated_delivery_start | DATE | The earliest predicted date for the customer to receive the item |
-|  estimated_delivery_end  | DATE | The latest predicted date for delivery |
-| item_status | NVARCHAR(50) | The current lifecycle stage of the item (e.g., Completed, Cancelled, Returned) |
-<br>
+## Project Goals
 
-shopee_products_thailan:
-| Column | Data Type | Description | Key |
-|--------|-----------|-------------|-----|
-| product_id | VARCHAR(50) | Unique Primary Key for the catalog | PK |
-|  category  | NVARCHAR(50) | High-level product classification (e.g., Beauty, Fashion, Electronics) |
-| product_name | NVARCHAR(50) | Product name |
-| maintenance_rate | DECIMAL(20, 3) | Fixed operational fee percentage per product |
-| commission_rate  | DECIMAL(20, 2) | The marketplace fee percentage charged to the seller |
-|   weight   |   DECIMAL(20, 2)   | Product weight in kilograms |
-| created_at |   DATE   | The registration date of the product in the system |
-<br>
+- Build a repeatable ELT pipeline: raw CSV files → Bronze → Silver → Gold.
+- Process, transform and clean raw data with T-SQL.
+- Design a data model for the Gold layer.
+- Validate data quality with automated SQL checks at every layer.
 
-shopee_customers_thailan:
-| Column | Data Type | Description | Key |
-|--------|-----------|-------------|-----|
-| customer_id | VARCHAR(50)  | Unique identifier for each user | PK |
-| first_name  | NVARCHAR(50) | The given name of the customer |
-|  last_name  | NVARCHAR(50) | The family name of the customer |
-| gender | NVARCHAR(10) | Biological sex of the user |
-|  dob   |   DATE   | Date of Birth |
-| registration_date | DATE | The date the user joined the platform |
-| phone |   INT   | Contact phone number for the user |
-| email | NVARCHAR(100) | Email address |
-| province | NVARCHAR(50) | The primary administrative division in Thailand where the customer is located |
-|   city   | NVARCHAR(50) | The specific city or district of the customer |
-<br>
+## Architecture
 
-## Tools:
-   • SQL 
-   • Draw.io
-<br>
+```mermaid
+flowchart LR
+    A["Sources<br/>5 CSV files<br/>(CRM + ERP)"] -->|Extract + Load| B["Bronze<br/>raw tables"]
+    B -->|Transform| C["Silver<br/>cleaned tables"]
+    C -->|Transform| D["Gold<br/>normalized model + view"]
+    D --> E["Ad-hoc SQL queries"]
+```
 
-## Objective:
-🔹 Built SQL-based ETL pipelines to transform raw data into structured datasets and manage data flow:
+This is an **ELT** pattern: data is extracted from CSV files and loaded as-is into Bronze first, then transformed inside SQL Server.
 
-   		– Bronze layer (raw data): Extract data (CRM, CSV files, ...). 
-	
-		– Silver layer (data cleaning): Transform data (process data). 
-	
-   		– Gold layer (Star Schema): Load data (create Primary Key, Foreign Key). 
-	
-🔹 Designed data warehouse and star schema models using draw.io.
+| Layer | Purpose | Object type | Load | Transformations | Data model |
+|---|---|---|---|---|---|
+| **Bronze** | Raw copy of the source files | Tables | Full load: truncate + bulk insert | None | None (as-is) |
+| **Silver** | Cleaned and standardized data | Tables | Full load, batch processing | Trimming, NULL handling, deduplication, value standardization, data quality checks | Source-aligned tables |
+| **Gold** | Business-ready data | Tables + 1 view | Full load: drop, create, insert | PK/FK constraints, flat sales view | Normalized (ER model) |
 
+## Data Sources and Lineage
+
+The CRM / ERP labels are a functional grouping of the files: customer and campaign data is treated as CRM, order and product data as ERP.
+
+| Source file | System | Bronze | Silver | Gold |
+|---|---|---|---|---|
+| `shopee_customers_thailand.csv` | CRM | `bronze.crm_customer` | `silver.crm_customer` | `gold.customers` |
+| `shopee_campaigns_thailand.csv` | CRM | `bronze.crm_campaign` | `silver.crm_campaign` | `gold.campaigns` |
+| `shopee_orders_thailand.csv` | ERP | `bronze.erp_order` | `silver.erp_order` | `gold.orders` |
+| `shopee_order_items_thailand.csv` | ERP | `bronze.erp_order_items` | `silver.erp_order_items` | `gold.order_items` |
+| `shopee_products_thailand.csv` | ERP | `bronze.erp_product` | `silver.erp_product` | `gold.products` |
+
+All five Gold tables feed the flat view `gold.vw_sales_detail` (1 row = 1 order item).
+
+## Data Model (Gold Layer)
+
+```mermaid
+erDiagram
+    CUSTOMERS ||--o{ ORDERS : places
+    CAMPAIGNS ||--o{ ORDERS : "applied to"
+    ORDERS ||--|{ ORDER_ITEMS : contains
+    PRODUCTS ||--o{ ORDER_ITEMS : "appears in"
+
+    CUSTOMERS {
+        varchar customer_id PK
+        nvarchar first_name
+        nvarchar last_name
+        nvarchar gender
+        nvarchar province
+        nvarchar city
+    }
+    CAMPAIGNS {
+        varchar campaign_id PK
+        nvarchar campaign_name
+        date start_date
+        date end_date
+        varchar campaign_type
+    }
+    PRODUCTS {
+        varchar product_id PK
+        nvarchar category
+        nvarchar product_name
+    }
+    ORDERS {
+        int order_id PK
+        varchar customer_id FK
+        varchar campaign_id FK
+        date order_date
+        decimal total_amount
+    }
+    ORDER_ITEMS {
+        int order_item_id PK
+        int order_id FK
+        varchar product_id FK
+        varchar product_campaign_id
+        int quantity
+        decimal unit_price
+        decimal line_total
+        nvarchar item_status
+    }
+```
+
+The diagram is simplified and does not show every column.
+
+- One customer places many orders. One order contains one or more order items.
+- One product appears in many order items.
+- Orders without a campaign point to a placeholder row (`campaign_id = 'None'`) in `gold.campaigns`, so the foreign key always holds.
+
+## Data Quality Checks
+
+The Silver script reports problems instead of silently deleting data. Expected result for each rule check is `0`.
+
+- Row count reconciliation between Bronze and Silver (rows removed by deduplication).
+- Duplicate primary keys in every table.
+- Orphan keys: order → customer, order → campaign, order item → order, order item → product.
+- Negative amounts, quantities and prices.
+- `line_total` consistent with `quantity × unit_price_after_discount`.
+- Delivery end date earlier than start date, registration date in the future, campaign end date earlier than start date.
+- NULL count per column for every Silver table.
+
+The Gold script ends with row count and `SUM(line_total)` comparisons between Silver and Gold.
+
+## Key Design Decisions
+
+- **ELT with full load**: each script drops or truncates and reloads its tables, so it can be rerun safely from the start.
+- **Bronze keeps data as-is**; all cleaning happens in Silver.
+- **Suspicious rows are flagged, not deleted**, to avoid losing real revenue before the business rule is understood.
+- **Explicit column lists** in every `INSERT INTO ... SELECT`, so column order changes cannot silently put values in the wrong column.
+- **Money is read at item level** (`line_total`) in the flat view, so order-level totals are never counted once per item.
+- **Parent tables load before child tables** in Gold, and tables are dropped in the opposite order, to respect foreign keys.
+
+## Repository Structure
+
+```
+.
+├── BRONZE.sql    # create database + schemas, create raw tables, bulk insert CSV files
+├── SILVER.sql    # cleaning, standardization, data quality checks
+├── GOLD.sql      # normalized model (PK/FK), flat view, post-load checks
+└── README.md
+```
+
+## How to Run
+
+**Requirements:** SQL Server 2017 or later (the scripts use `STRING_AGG` and `BULK INSERT ... FORMAT = 'CSV'`), SQL Server Management Studio, and the 5 CSV files.
+
+1. Clone this repository.
+2. Open `BRONZE.sql` and update each `BULK INSERT ... FROM '<path>'` to the location of your CSV files. The SQL Server service account must have read access to that folder.
+3. Run `BRONZE.sql`, then `SILVER.sql`, then `GOLD.sql`, in that order.
+4. After `SILVER.sql`, review the result sets: row count reconciliation, rule checks and NULL counts.
+5. After `GOLD.sql`, confirm that row counts and `SUM(line_total)` match between Silver and Gold.
+
+## Example Queries
+
+Revenue by product category:
+
+```sql
+SELECT category,
+       SUM(line_total) AS revenue,
+       SUM(quantity)   AS units_sold
+FROM gold.vw_sales_detail
+GROUP BY category
+ORDER BY revenue DESC;
+```
+
+Revenue by province:
+
+```sql
+SELECT province,
+       SUM(line_total) AS revenue
+FROM gold.vw_sales_detail
+GROUP BY province
+ORDER BY revenue DESC;
+```
+
+## Tech Stack
+
+SQL Server · T-SQL · SQL Server Management Studio · draw.io · Git / GitHub
+
+## Possible Improvements
+
+These are not implemented in this project:
+
+- Incremental loading instead of full reload.
+- Stored procedures with a logging table for run history.
+- Orchestration of the three layers (for example with Airflow).
+- A star schema layer on top of the normalized model.
+- A BI dashboard on the Gold layer.
+
+## Author
+
+**[Your name]** · [LinkedIn](https://www.linkedin.com/in/your-profile) · [Email](mailto:your@email.com)
