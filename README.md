@@ -10,7 +10,7 @@ An end-to-end **ELT pipeline** built in **SQL Server (T-SQL)** following the **M
 - Validate data quality with automated SQL checks at every layer.
 
 ## Architecture
-
+DataWarehouse.png
 ```mermaid
 flowchart LR
     A["Sources<br/>5 CSV files<br/>(CRM + ERP)"] -->|Extract + Load| B["Bronze<br/>raw tables"]
