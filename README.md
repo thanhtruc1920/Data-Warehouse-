@@ -41,6 +41,7 @@ The CRM / ERP labels are a functional grouping of the files: customer and campai
 | `shopee_products_thailand.csv` | ERP | `bronze.erp_product` | `silver.erp_product` | `gold.products` |
 
 ## Data Model (Gold Layer)
+https://github.com/thanhtruc1920/Data-Warehouse-/blob/32cf7fc155519cbb4bc5b62530d3e629210957e0/ER_model.png
 
 ```mermaid
 erDiagram
