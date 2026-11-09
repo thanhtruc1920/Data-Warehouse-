@@ -178,4 +178,4 @@ These are not implemented in this project:
 
 ## Author
 
-**[Day Hoang Thanh Truc]** · [[Email](thanhtruc19204@email.com)
+**[Day Hoang Thanh Truc]** · [[Email](thanhtruc19204@email.com)]
